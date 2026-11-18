@@ -1,4 +1,4 @@
-@font-face{font-family:Shrikhand;src:url('/Resources/Type/shrikhand.ttf') format('truetype');font-display:swap}
+@font-face{font-family:Shrikhand;src:url('Resources/Type/shrikhand.ttf') format('truetype');font-display:swap}
 :root{--ink:#10241c;--night:#0c1c16;--paper:#f3ebd7;--orange:#ff884c;--line:rgba(28,44,33,.32);--display:Shrikhand,Georgia,serif}
 *{box-sizing:border-box}
 body{margin:0;background:var(--night);color:var(--paper);font:1rem/1.55 Arial,Helvetica,sans-serif}

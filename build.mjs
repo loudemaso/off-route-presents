@@ -45,7 +45,13 @@ await rm('dist',{recursive:true,force:true});
 for (const [path,[title,content]] of Object.entries(pages)) {
   const dest = join('dist',path,'index.html');
   await mkdir(dirname(dest),{recursive:true});
-  await writeFile(dest,layout(path,title,content));
+  const prefix = '../'.repeat(path.split('/').filter(Boolean).length) || './';
+  const html = layout(path,title,content).replace(/(href|src)="\//g, (_, attribute) => attribute + '="' + prefix);
+  await writeFile(dest,html);
+  // GitHub Pages serves the committed project root while Netlify serves dist.
+  const pagesFile = join(path.slice(1), "index.html");
+  await mkdir(dirname(pagesFile), { recursive: true });
+  await writeFile(pagesFile, html);
 }
 await cp('Resources','dist/Resources',{recursive:true});
 await copyFile('styles.css','dist/styles.css');
