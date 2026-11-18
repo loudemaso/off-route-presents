@@ -7,7 +7,7 @@ a:focus-visible{outline:3px solid #0088ff;outline-offset:5px}
 img{display:block;max-width:100%}
 .wrap{width:min(86%,1320px);margin-inline:auto}
 header,footer{background:var(--night)}
-html{scroll-padding-top:108px}
+html{scroll-padding-top:108px;scrollbar-gutter:stable}
 .masthead{position:sticky;top:0;isolation:isolate;z-index:3;background:#132e23;border-bottom:1px solid #ad784a}
 .masthead:before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(100deg,#17382a 5%,transparent 48%,#142f23 96%),repeating-radial-gradient(ellipse at 23% 230%,transparent 0 12px,#d6d9aa16 13px,transparent 14px 22px)}
 .masthead:after{content:'';position:absolute;inset:auto 0 -3px;height:3px;z-index:-1;background:#0b1b14;clip-path:polygon(0 0,100% 0,100% 45%,84% 70%,72% 35%,57% 100%,36% 45%,14% 80%,0 40%)}
@@ -25,7 +25,7 @@ html{scroll-padding-top:108px}
 .ticket-nav a{position:relative;display:grid;place-items:center;padding:.6rem clamp(.7rem,1.9vw,1.8rem);min-height:44px;color:inherit;font-weight:750;letter-spacing:.01em;transition:background .16s,color .16s}
 .ticket-nav a+a{border-left:1px dashed #6e775c}
 .ticket-nav a:is(:hover,:focus-visible){background:#d8c9a4;color:#172d22}
-.ticket-nav a[aria-current]{color:#142a20;background:#ee9a61;box-shadow:inset 0 -2px #9e4927}
+.ticket-nav a[aria-current]{color:var(--ink);text-decoration:underline;text-decoration-color:#a74b23;text-decoration-thickness:2px;text-underline-offset:.32em}
 .brand{display:inline-block}.logo{width:76px;height:64px;object-fit:contain}
 nav{display:flex;gap:clamp(1rem,3.5vw,3.5rem);align-items:center}
 nav a{font-weight:700;font-size:.95rem}

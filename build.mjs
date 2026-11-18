@@ -1,8 +1,10 @@
-import { copyFile, cp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { dirname, join } from 'node:path';
 
 import { artists, events, posts } from './season.mjs';
 
+const cssVersion = createHash('sha256').update(await readFile('styles.css')).digest('hex').slice(0,12);
 const graffiti = '/Resources/Brand/off-route-white-wordmark.png';
 const photo = name => '/Resources/Placeholders/' + name + '.webp';
 const stage = photo('forest-dance-floor');
@@ -31,7 +33,7 @@ const socialNav = '<nav class="social-nav" aria-label="Example social links">' +
 function layout(path, title, content) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex"><meta name="theme-color" content="#10241c"><meta name="description" content="Independent electronic music events and artist management in Colorado. Explore Off Route shows, artists and field notes.">
-  <title>${title === 'Home' ? 'Off Route Presents' : title + ' | Off Route Presents'}</title><link rel="preload" href="/Resources/Type/shrikhand.ttf" as="font" type="font/ttf" crossorigin><link rel="stylesheet" href="/styles.css"></head>
+  <title>${title === 'Home' ? 'Off Route Presents' : title + ' | Off Route Presents'}</title><link rel="preload" href="/Resources/Type/shrikhand.ttf" as="font" type="font/ttf" crossorigin><link rel="stylesheet" href="/styles.css?v=${cssVersion}"></head>
   <body><a class="skip" href="#main">Skip to content</a><header class="masthead"><div class="wrap bar">
     <a class="brand sleeve" href="/" aria-label="Off Route Presents home"><span class="vinyl" aria-hidden="true"></span><span class="sleeve-face">${logo}</span></a>
     <div class="header-links"><nav class="ticket-nav" aria-label="Main">${nav(path)}</nav>${socialNav}</div>
