@@ -7,7 +7,8 @@ a:focus-visible{outline:3px solid #0088ff;outline-offset:5px}
 img{display:block;max-width:100%}
 .wrap{width:min(86%,1320px);margin-inline:auto}
 header,footer{background:var(--night)}
-.masthead{position:relative;isolation:isolate;z-index:3;background:#132e23;border-bottom:1px solid #ad784a}
+html{scroll-padding-top:108px}
+.masthead{position:sticky;top:0;isolation:isolate;z-index:3;background:#132e23;border-bottom:1px solid #ad784a}
 .masthead:before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(100deg,#17382a 5%,transparent 48%,#142f23 96%),repeating-radial-gradient(ellipse at 23% 230%,transparent 0 12px,#d6d9aa16 13px,transparent 14px 22px)}
 .masthead:after{content:'';position:absolute;inset:auto 0 -3px;height:3px;z-index:-1;background:#0b1b14;clip-path:polygon(0 0,100% 0,100% 45%,84% 70%,72% 35%,57% 100%,36% 45%,14% 80%,0 40%)}
 .bar,.foot,.section-head,.listing{display:flex;align-items:center;justify-content:space-between;gap:2rem}
@@ -141,6 +142,7 @@ p+.button{margin-top:1.7rem}
 .social-nav a:is(:hover,:focus-visible){color:var(--orange);background:#243f31}
 @media(max-width:700px){
   .header-links{flex-direction:column-reverse;align-items:flex-end;gap:0;padding:0 0 7px}
+  html{scroll-padding-top:96px}
   .masthead .bar{min-height:85px}
   .social-nav a{width:35px;height:32px}
   .social-nav svg{width:17px;height:17px}
