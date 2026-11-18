@@ -7,9 +7,24 @@ a:focus-visible{outline:3px solid #0088ff;outline-offset:5px}
 img{display:block;max-width:100%}
 .wrap{width:min(86%,1320px);margin-inline:auto}
 header,footer{background:var(--night)}
-header{position:relative;z-index:3;border-bottom:1px solid #425044}
+.masthead{position:relative;isolation:isolate;z-index:3;background:#132e23;border-bottom:1px solid #ad784a}
+.masthead:before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(100deg,#17382a 5%,transparent 48%,#142f23 96%),repeating-radial-gradient(ellipse at 23% 230%,transparent 0 12px,#d6d9aa16 13px,transparent 14px 22px)}
+.masthead:after{content:'';position:absolute;inset:auto 0 -3px;height:3px;z-index:-1;background:#0b1b14;clip-path:polygon(0 0,100% 0,100% 45%,84% 70%,72% 35%,57% 100%,36% 45%,14% 80%,0 40%)}
 .bar,.foot,.section-head,.listing{display:flex;align-items:center;justify-content:space-between;gap:2rem}
-.bar{min-height:86px}
+.bar{min-height:94px}
+.sleeve{--side:94px;position:relative;width:calc(var(--side)*1.48);height:var(--side);flex:none;align-self:flex-end;transform:translateY(8px)}
+.sleeve-face{display:grid;place-items:center;position:relative;width:var(--side);height:100%;background:#244b38;border:1px solid #82937a;transform:rotate(-6deg);box-shadow:2px 3px #071b15,4px 5px #c46b39}
+.sleeve-face:after{content:'';position:absolute;inset:4px;border:1px solid #bbc6a14a;pointer-events:none}
+.sleeve .logo{width:81%;height:82%;object-fit:contain;transform:rotate(3deg)}
+.vinyl{position:absolute;top:3%;left:27%;height:92%;aspect-ratio:1;border-radius:50%;border:1px solid #89978a;background:radial-gradient(circle,#13281e 0 3%,#e88a54 4% 24%,transparent 25%),repeating-radial-gradient(circle,transparent 0 3px,#d6d8b129 3.5px 4px),conic-gradient(from 30deg,#0b1914,#465949 14%,#101d17 32% 62%,#526455 80%,#0b1914);transition:transform .3s ease-out}
+.sleeve:is(:hover,:focus-visible) .vinyl{transform:translateX(6px) rotate(24deg)}
+.ticket-nav{position:relative;display:flex;gap:0;padding:.28rem .42rem;transform:rotate(-1deg);background:#ede1c2;color:#1b3025;box-shadow:2px 3px #102219,4px 5px #b7693d}
+.ticket-nav:before,.ticket-nav:after{content:'';position:absolute;top:calc(50% - 4px);width:8px;height:8px;border-radius:50%;background:#163024;pointer-events:none}
+.ticket-nav:before{left:-4px}.ticket-nav:after{right:-4px}
+.ticket-nav a{position:relative;display:grid;place-items:center;padding:.6rem clamp(.7rem,1.9vw,1.8rem);min-height:44px;color:inherit;font-weight:750;letter-spacing:.01em;transition:background .16s,color .16s}
+.ticket-nav a+a{border-left:1px dashed #6e775c}
+.ticket-nav a:is(:hover,:focus-visible){background:#d8c9a4;color:#172d22}
+.ticket-nav a[aria-current]{color:#142a20;background:#ee9a61;box-shadow:inset 0 -2px #9e4927}
 .brand{display:inline-block}.logo{width:76px;height:64px;object-fit:contain}
 nav{display:flex;gap:clamp(1rem,3.5vw,3.5rem);align-items:center}
 nav a{font-weight:700;font-size:.95rem}
@@ -108,3 +123,25 @@ p+.button{margin-top:1.7rem}
 @media(max-width:700px){.event-layout{grid-template-columns:1fr}.full-flyer{width:min(85%,320px);margin:auto}.facts{gap:.6rem 1rem}.shows .section-head{align-items:baseline}}
 .pinned.poster{position:absolute}
 .pinned.poster:focus-visible{outline-offset:6px}
+
+@media(max-width:700px){
+  .masthead .bar{width:94%;min-height:70px;gap:.6rem}
+  .sleeve{--side:64px;transform:translateY(4px)}
+  .ticket-nav{gap:0;padding:.1rem .2rem}
+  .ticket-nav a{padding:.45rem clamp(.45rem,1.65vw,.7rem);font-size:.9rem}
+}
+@media(max-width:365px){
+  .sleeve{--side:53px}
+  .ticket-nav a{padding:.4rem .36rem;font-size:.86rem}
+}
+.header-links{display:flex;align-items:center;gap:clamp(.85rem,2.3vw,2.4rem)}
+.social-nav{gap:2px}
+.social-nav a{width:40px;height:44px;display:grid;place-items:center;color:var(--paper);border-radius:50%}
+.social-nav svg{width:21px;height:21px}
+.social-nav a:is(:hover,:focus-visible){color:var(--orange);background:#243f31}
+@media(max-width:700px){
+  .header-links{flex-direction:column-reverse;align-items:flex-end;gap:0;padding:0 0 7px}
+  .masthead .bar{min-height:85px}
+  .social-nav a{width:35px;height:32px}
+  .social-nav svg{width:17px;height:17px}
+}

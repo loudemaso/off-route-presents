@@ -20,11 +20,22 @@ const routeLines = `<svg class="contours" viewBox="0 0 500 620" preserveAspectRa
 const storyDate = '<time datetime="2026-11-18">Nov 18, 2026</time>';
 const storyCard = `<article class="story-card"><a class="frame" href="${story}" aria-label="Read Behind the booth"><img loading="lazy" src="${booth}" alt="A DJ cues a vinyl record in amber light"></a><div>${kicker('Field notes · Sample editorial')}<small>${storyDate}</small><h3><a href="${story}">Behind the booth</a></h3><p>Headphones on, fader down. A closer look at the minute before two tracks meet.</p><a class="rule-link" href="${story}">Read the story</a></div></article>`;
 const contactLink = topic => 'mailto:' + email + '?subject=' + encodeURIComponent(topic);
+const socialIcons = [
+  ['Instagram', 'https://www.instagram.com/', '<rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.2" cy="6.9" r="1.1"/>'],
+  ['SoundCloud', 'https://soundcloud.com/', '<path d="M11 16.8V8a5.2 5.2 0 0 1 9.5 2.9 3 3 0 1 1 .1 6H11Z"/><path d="M2 14v1m2.5-3.5v5M7 10v6.5m2-9v9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>'],
+  ['YouTube', 'https://www.youtube.com/', '<path fill-rule="evenodd" d="M4 5.4c2.9-.7 13.1-.7 16 0 2.1.5 2.5 2.8 2.5 6.6s-.4 6.1-2.5 6.6c-2.9.7-13.1.7-16 0C1.9 18.1 1.5 15.8 1.5 12S1.9 5.9 4 5.4Zm6 3.3v6.6l5.7-3.3Z"/>'],
+];
+const socialNav = '<nav class="social-nav" aria-label="Example social links">' + socialIcons.map(([name,url,icon]) =>
+  `<a href="${url}" aria-label="${name} (example link to platform homepage)" title="${name} · example link"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">${icon}</svg></a>`
+).join('') + '</nav>';
 function layout(path, title, content) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex"><meta name="theme-color" content="#10241c"><meta name="description" content="Independent electronic music events and artist management in Colorado. Explore Off Route shows, artists and field notes.">
   <title>${title === 'Home' ? 'Off Route Presents' : title + ' | Off Route Presents'}</title><link rel="preload" href="/Resources/Type/shrikhand.ttf" as="font" type="font/ttf" crossorigin><link rel="stylesheet" href="/styles.css"></head>
-  <body><a class="skip" href="#main">Skip to content</a><header><div class="wrap bar"><a class="brand" href="/">${logo}</a><nav aria-label="Main">${nav(path)}</nav></div></header>
+  <body><a class="skip" href="#main">Skip to content</a><header class="masthead"><div class="wrap bar">
+    <a class="brand sleeve" href="/" aria-label="Off Route Presents home"><span class="vinyl" aria-hidden="true"></span><span class="sleeve-face">${logo}</span></a>
+    <div class="header-links"><nav class="ticket-nav" aria-label="Main">${nav(path)}</nav>${socialNav}</div>
+  </div></header>
   <main id="main">${content}</main><footer><div class="wrap foot"><a class="brand" href="/">${logo}</a><p>Independent electronic music<br>Colorado</p><nav aria-label="Footer">${nav(path)}</nav></div></footer></body></html>`;
 }
 const heading = (label, title, summary) => `<section class="intro"><div class="wrap">${kicker(label)}<h1>${title}</h1><p>${summary}</p></div>${routeLines}</section>`;
