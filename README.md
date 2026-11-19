@@ -1,39 +1,41 @@
 # Off Route Presents
 
-Notion is the content editor. GitHub owns templates and styling. Netlify serves pages dynamically and stores published record snapshots and image bytes in Blobs.
+Notion edits content. GitHub owns code and brand assets. One Netlify project serves the website and receives authenticated publishing webhooks.
 
-## Project
+## Current architecture
 
-`off-route-presents` is the public website and authenticated CMS receiver. It stores published record snapshots and image bytes in its own Netlify Blobs store. Website functions read that store directly; there is no separate publishing service or cross-project fetch.
-
-Code changes require a deployment. Notion publishing does not. There are no scheduled functions or content build hooks in the code. Production data persists across deployments; preview stores are isolated by deploy ID.
+- `published-content` in the production Netlify Blobs store is the only published dataset. It contains current records and revision-bearing unpublish markers. There is no build seed or per-record override layer.
+- `/publish` validates one changed Notion record, copies its images to persistent storage, and atomically updates the dataset. Conditional writes retry concurrent changes; older revisions cannot replace newer ones.
+- The page function reads the dataset once and renders only the requested page. Contact and invalid route shapes require no content reads.
+- HTML uses `private, no-store`. After a webhook completes, the next page request sees the update. An already open page needs a refresh.
+- CMS images use content-addressed `/content-images/` originals. Netlify Image CDN supplies responsive WebP derivatives, with lazy loading below the fold. Brand originals stay in `Resources/Brand/` unchanged.
+- Functions deploy directly from `netlify/functions`. Each bundle contains only its imported code and dependencies. Build output contains only the design assets the site uses.
 
 ## Editing and publishing
 
-Each Off Route Artists, Events, and Posts table has its own Notion automation: **Status is edited → Send webhook** to `https://off-route-presents.netlify.app/publish` with `x-publish-secret` set to the shared environment secret. Select Status in the webhook payload. Do not use a workspace-wide integration webhook.
+The editor-facing instructions are in the [Publishing Guide](https://www.notion.so/41d27987112881249b59c922918684a7).
 
-1. Create a Draft, add Name, unique lowercase hyphenated Slug, Cover Image, Image Alt, Summary, and body text. Events require Show Starts; posts require Publish Date.
-2. Set Status to Published. The publishing function validates the table and fields, downloads images, and saves this record. The next website request reads the updated snapshot. List pages, related links, and the detail page use the same data.
-3. To update a live record, set Draft, edit, and set Published again. Draft/Archived removes it from the website; use one of those before moving a page to Trash. Changes to other properties alone do not publish. There is no scheduled deletion scan.
-4. Renaming Slug removes the old route and creates a new route; there is no automatic redirect. Keep live slugs stable.
+Each Artists, Events, and Posts table has a **Status is edited → Send webhook** automation to `https://off-route-presents.netlify.app/publish`, with the `x-publish-secret` header. Include Status in the payload. Do not use a build hook or workspace-wide integration webhook.
 
-Check the **Website check** formula for missing required fields before publishing. This is a readiness check, not delivery confirmation. Doors does not replace Show Starts.
+1. Create a Draft with Name, a unique lowercase hyphenated Slug, and Cover Image (or a Notion page cover). Events also need Show Starts; posts need Publish Date. Other fields and the page body are optional.
+2. Check **Website check**, then set Status to Published. The webhook runs asynchronously; check the website after it completes.
+3. To update a record, set Draft, edit, and set Published again. Draft temporarily removes it. Property edits alone do not publish, even when Status is Published.
+4. Set Draft or Archived before moving a record to Trash. There is no scheduled deletion scan.
 
-Notion webhooks are asynchronous. Incomplete or invalid content is acknowledged with HTTP 200 and `published: false`, logged as `publication_rejected`, and saved under `publishing-errors/<page-id>` in Blobs. It does not replace the last valid snapshot or pause other records. Fix the indicated fields and change Status again. Infrastructure failures still return errors so Notion can retry; if Notion pauses the automation, resolve the outage and resume it manually. Missing cover images, unsupported blocks, and invalid/duplicate slugs are rejected. Page body supports paragraphs, headings, lists, quotes, dividers, and images.
+Changing a Slug changes the URL; the old URL has no redirect. Keep live slugs stable. Website check validates required fields, not delivery or slug uniqueness.
 
-Images are copied to persistent storage when published so expiring Notion file links are not embedded in the website. The website serves these images directly from its own storage. Seed content is bundled on code deployments. Per-record overrides and unpublish tombstones persist across deployments. Code deployments refresh seed content from valid Published Notion records and log skipped invalid records; avoid deploying unfinished edits to Published records.
+Supported body blocks: paragraphs, headings, lists, quotes, dividers, and images. Image formats: WebP, JPEG, PNG, GIF, and AVIF. Published images are copied, so the site does not depend on expiring Notion file links.
 
-## Environment and access
+Invalid content preserves the last valid publication, returns `published: false`, logs `publication_rejected`, and saves a report at `publishing-errors/<page-id>`. Fix the indicated issue and change Status again. Infrastructure failures remain errors; if Notion pauses an automation, resolve the failure and resume it in that table.
 
-`NOTION_TOKEN` is required for builds and publishing functions. `PUBLISH_SECRET` is required for the authenticated `/publish` endpoint. Store both in Netlify, never GitHub. The Notion webhook header `x-publish-secret` must match the production secret. Neither credential is delivered to browsers.
+## Code changes and development
 
-The production website must remain publicly reachable so Notion can deliver webhooks. `/publish` rejects requests without the secret, checks that the page belongs to the Off Route tables, and enforces publishing validation. Public pages and `/content-images/*` serve published material. Preview deploys use isolated stores and do not change production content.
+`npm ci && npm test` builds the static assets and runs the tests without credentials or network access. `npm run build` only prepares code assets; it never reads Notion or writes published content. Push code to `main` to deploy through the connected Netlify project.
 
-## Development
+Use `netlify dev` against a linked project for integrated function work. Production uses `off-route-content-production`. A preview initially reads production content; its first publication copies the dataset into its own deploy-ID store and all subsequent writes remain there. Preview image reads can fall back to production originals. Local development uses a local store that needs an explicitly initialized dataset. A missing dataset fails visibly; there is no hidden seed fallback.
 
-`npm ci && npm test` runs deterministic tests without credentials.
-`NOTION_TOKEN=... npm run build` prepares the website and seed.
+`NOTION_TOKEN` is used only by the publishing function. `PUBLISH_SECRET` authenticates `/publish`. Keep both in Netlify, never in source or browser code. The production website must remain public for Notion webhook delivery; the publisher itself requires its secret.
 
-Run `netlify dev` against the relevant linked project for function testing. Do not point destructive preview tests at the production publisher.
+Content updates do not trigger builds. Requests, function execution, image transformations, bandwidth, and storage still consume hosting resources. HTML caching remains off; immutable content images remain cached.
 
-There is no build/deploy charge per content update; function compute, requests, bandwidth, and storage usage still apply. The website currently avoids HTML caching so unpublishing takes effect on subsequent requests. Static design assets remain CDN-served. Monitor the shared team credit usage in Netlify.
+The old GitHub Pages HTML, demo data, build staging, and migration code have been retired. There are no old-address redirects. Git history retains earlier versions. Indexing remains disabled and example social links remain unchanged pending launch decisions.

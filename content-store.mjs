@@ -1,38 +1,47 @@
-import { getStore } from '@netlify/blobs';
-import { readFile } from 'node:fs/promises';
+import { getStore } from "@netlify/blobs";
+import { PUBLISHED_KEY, snapshotContent } from "./published-content.mjs";
+
+export const productionStore = () =>
+  getStore({ name: "off-route-content-production", consistency: "strong" });
+export const isProduction = (context) =>
+  context?.deploy?.context === "production";
+export const isPreview = (context) =>
+  Boolean(context?.deploy?.id && !isProduction(context));
 
 export function contentStore(context) {
-  const suffix = context?.deploy?.context === 'production' ? 'production' : context?.deploy?.id || 'local';
-  return getStore({ name: 'off-route-content-' + suffix, consistency: 'strong' });
+  const suffix = isProduction(context)
+    ? "production"
+    : context?.deploy?.id || "local";
+  return getStore({
+    name: "off-route-content-" + suffix,
+    consistency: "strong",
+  });
 }
-export async function seed() {
-  return JSON.parse(await readFile('seed.json', 'utf8'));
-}
-export async function readContent(store, initial) {
-  const entries = await readRecords(store);
-  return mergeRecords(initial, entries);
-}
-export async function readRecords(store) {
-  const { blobs } = await store.list({ prefix:'records/' });
-  return Promise.all(blobs.map(blob => store.get(blob.key, {type:'json'})));
-}
-export function mergeRecords(initial, entries) {
-  const content = structuredClone(initial);
-  for (const entry of entries) {
-    if (!entry) continue;
-    content[entry.kind] = content[entry.kind].filter(item => item.id !== entry.id);
-    if (entry.item) content[entry.kind].push(entry.item);
+
+export async function readPublished(context) {
+  const snapshot = await contentStore(context).get(PUBLISHED_KEY, {
+    type: "json",
+  });
+  // An untouched preview can view published content, but never writes production.
+  if (!snapshot && isPreview(context)) {
+    return snapshotContent(
+      await productionStore().get(PUBLISHED_KEY, { type: "json" }),
+    );
   }
-  return content;
+  return snapshotContent(snapshot);
 }
-export async function saveRecord(store, entry) {
-  const key = 'records/' + entry.id;
-  for (let attempt = 0; attempt < 5; attempt++) {
-    const previous = await store.getWithMetadata(key, { type: 'json' });
-    if (previous && previous.data.revision > entry.revision) return false;
-    const options = previous ? { onlyIfMatch: previous.etag } : { onlyIfNew: true };
-    const result = await store.setJSON(key, entry, options);
-    if (result.modified) return true;
+
+export async function writableStore(context) {
+  const store = contentStore(context);
+  if (
+    isPreview(context) &&
+    !(await store.get(PUBLISHED_KEY, { type: "json" }))
+  ) {
+    const snapshot = await productionStore().get(PUBLISHED_KEY, {
+      type: "json",
+    });
+    if (!snapshot) throw Error("Published content is not initialized.");
+    await store.setJSON(PUBLISHED_KEY, snapshot, { onlyIfNew: true });
   }
-  throw Error('Concurrent publication changed this record. Retry publishing.');
+  return store;
 }

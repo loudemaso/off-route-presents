@@ -1,6 +1,5 @@
 node_modules/
 dist/
-.runtime/
-seed.json
+generated/
 .env*
 .netlify/

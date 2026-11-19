@@ -1,18 +1,53 @@
-import { seed, mergeRecords, contentStore, readRecords } from '../../content-store.mjs';
-import { renderPages } from '../../render.mjs';
-export default async function site(request, context) {
-  const initial = await seed();
-  let content = initial.content;
-  try {
-    const store = contentStore(context);
-    content = mergeRecords(content, await readRecords(store));
-  } catch (error) {
-    console.error(error.message);
-    return new Response('Content is temporarily unavailable. Please try again shortly.', {status:503, headers:{'Cache-Control':'no-store'}});
-  }
-  const path = new URL(request.url).pathname;
-  const pages = renderPages(content, initial.cssVersion, new Date(), path.endsWith('/') ? path : path+'/');
-  const html = pages[path.endsWith('/') ? path : path+'/'];
-  return new Response(html || 'Page not found', {status:html ? 200 : 404, headers:{'Content-Type':'text/html; charset=utf-8', 'Cache-Control':'private, no-store'}});
+import { readPublished } from "../../content-store.mjs";
+import { parseRoute, renderPage } from "../../render.mjs";
+import { assetVersion } from "../../generated/assets.mjs";
+
+const headers = {
+  "Content-Type": "text/html; charset=utf-8",
+  "Cache-Control": "private, no-store",
+};
+
+export function createSite({
+  readContent = readPublished,
+  render = renderPage,
+} = {}) {
+  return async function site(request, context) {
+    const route = parseRoute(new URL(request.url).pathname);
+    if (!route) return new Response("Page not found", { status: 404, headers });
+    try {
+      const content =
+        route.path === "/contact/" ? null : await readContent(context);
+      const html = render(route.path, content, assetVersion);
+      return new Response(
+        request.method === "HEAD" ? null : html || "Page not found",
+        {
+          status: html ? 200 : 404,
+          headers,
+        },
+      );
+    } catch (error) {
+      console.error(error.message);
+      return new Response(
+        request.method === "HEAD"
+          ? null
+          : "Content is temporarily unavailable. Please try again shortly.",
+        { status: 503, headers },
+      );
+    }
+  };
 }
-export const config = {path:['/', '/events','/events/*','/artists','/artists/*','/posts','/posts/*','/contact','/contact/'], method:['GET','HEAD']};
+export default createSite();
+export const config = {
+  path: [
+    "/",
+    "/events",
+    "/events/*",
+    "/artists",
+    "/artists/*",
+    "/posts",
+    "/posts/*",
+    "/contact",
+    "/contact/",
+  ],
+  method: ["GET", "HEAD"],
+};

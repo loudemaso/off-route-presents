@@ -2,10 +2,9 @@
   command = "npm run build"
   publish = "dist"
 
-[functions]
-  directory = ".runtime/functions"
-  node_bundler = "esbuild"
-  included_files = ["seed.json", "Resources/Placeholders/**"]
+[build.environment]
+  NODE_VERSION = "24"
 
-[functions."publish-content"]
-  included_files = ["seed.json", "Resources/Placeholders/**", "dist/media/**"]
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
