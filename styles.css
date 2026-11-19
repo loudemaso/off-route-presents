@@ -134,7 +134,7 @@ p+.button{margin-top:1.7rem}
 @media(max-width:760px){
   html{scroll-padding-top:98px}
   .masthead .bar{width:100%;min-height:84px;padding:14px clamp(20px,5.5vw,36px);gap:18px}
-  .sleeve{--side:56px;align-self:center;transform:none}
+  .sleeve{--side:84px;align-self:center;margin-block:-14px;transform:translateY(15px);z-index:1}
   .masthead:not(.menu-ready) .bar{flex-wrap:wrap}
   .masthead:not(.menu-ready) .header-links{flex-wrap:wrap}
   .masthead:not(.menu-ready) .ticket-nav a{padding:.5rem}
@@ -147,7 +147,7 @@ p+.button{margin-top:1.7rem}
   .menu-toggle[aria-expanded=true]:before{transform:translateY(2px) rotate(45deg)}
   .menu-toggle[aria-expanded=true] span{opacity:0}
   .menu-toggle[aria-expanded=true]:after{transform:translateY(-2px) rotate(-45deg)}
-  .menu-ready .header-links{display:none;position:absolute;inset:100% 0 auto;background:#132e23;padding:12px clamp(20px,5.5vw,36px) max(16px,env(safe-area-inset-bottom));border-bottom:1px solid #ad784a;box-shadow:0 10px 18px #071c163d;max-height:calc(100dvh - 85px);overflow-y:auto}
+  .menu-ready .header-links{display:none;position:absolute;inset:100% 0 auto;background:#132e23;padding:32px clamp(20px,5.5vw,36px) max(16px,env(safe-area-inset-bottom));border-bottom:1px solid #ad784a;box-shadow:0 10px 18px #071c163d;max-height:calc(100dvh - 85px);overflow-y:auto}
   .menu-ready .menu-toggle[aria-expanded=true]+.header-links{display:grid;gap:14px}
   .menu-ready .ticket-nav{display:grid;gap:0;transform:none;padding:3px 12px}
   .menu-ready .ticket-nav a{justify-content:start;min-height:48px;font-size:1rem;padding:.65rem .6rem}
