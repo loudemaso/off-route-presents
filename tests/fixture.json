@@ -1,0 +1,66 @@
+{
+  "cssVersion": "test",
+  "content": {
+    "artists": [
+      {
+        "id": "artist-1",
+        "slug": "test-artist",
+        "name": "Test artist",
+        "summary": "A test artist",
+        "alt": "Test portrait",
+        "sample": true,
+        "body": "<p>Biography</p>",
+        "image": "/media/0123456789abcdef01234567.webp",
+        "genre": "House",
+        "home": "Denver",
+        "links": []
+      }
+    ],
+    "events": [
+      {
+        "id": "event-1",
+        "slug": "test-event",
+        "name": "Test event",
+        "summary": "Test",
+        "alt": "Poster",
+        "sample": true,
+        "body": "<p>Show details</p>",
+        "image": "/media/0123456789abcdef01234567.webp",
+        "start": "2026-12-05T21:00:00-07:00",
+        "venue": "Demo",
+        "area": "",
+        "city": "Denver",
+        "state": "CO",
+        "age": "21+",
+        "price": "$20",
+        "ticket": "",
+        "ticketStatus": "",
+        "featured": true,
+        "lineup": [
+          "artist-1"
+        ]
+      }
+    ],
+    "posts": [
+      {
+        "id": "post-1",
+        "slug": "test-post",
+        "name": "Test post",
+        "summary": "Test",
+        "alt": "Editorial",
+        "sample": true,
+        "body": "<p>Story</p>",
+        "image": "/media/0123456789abcdef01234567.webp",
+        "date": "2026-11-18",
+        "category": "News",
+        "byline": "Editor",
+        "events": [
+          "event-1"
+        ],
+        "artists": [
+          "artist-1"
+        ]
+      }
+    ]
+  }
+}
