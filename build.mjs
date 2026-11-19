@@ -6,7 +6,7 @@ await rm('.runtime', { recursive:true, force:true });
 await mkdir('dist', { recursive:true });
 await mkdir('.runtime/functions', { recursive:true });
 const receiver = process.env.OFF_ROUTE_MODE === 'receiver';
-const content = await loadContent(receiver ? '.runtime' : 'dist');
+const content = await loadContent(receiver ? '.runtime' : 'dist', undefined, {skipInvalid:true});
 const cssVersion = createHash('sha256').update(await readFile('styles.css')).digest('hex').slice(0,12);
 await writeFile('seed.json', JSON.stringify({content, cssVersion}));
 const functions = receiver ? ['publish-content', 'content-snapshot', 'stored-image'] : ['site', 'content-image'];
