@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 
-const sources = {
+export const sources = {
   artists: '41d27987-1128-808d-ad88-000bf5cc8e34',
   events: '41d27987-1128-80e9-abab-000b80711202',
   posts: '41d27987-1128-8044-8361-000b549a7527'
@@ -9,7 +9,7 @@ const sources = {
 export const escape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch]);
 const safeLink = url => /^https?:\/\//i.test(url ?? '') ? escape(url) : '';
 const plain = parts => (parts ?? []).map(p => p.plain_text).join('');
-async function api(path, payload) {
+export async function api(path, payload) {
   const token = process.env.NOTION_TOKEN;
   if (!token) throw Error('Set NOTION_TOKEN for the production build.');
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -78,24 +78,10 @@ async function body(id, dir) {
   }
   return html;
 }
-const publishedRows=id=>all('data_sources/'+id+'/query',{filter:{property:'Status',status:{equals:'Published'}}});
-function stamp(rows,day){
-  const versions=rows.map(r=>r.id+':'+r.last_edited_time).sort();
-  return createHash('sha256').update(JSON.stringify([day,versions])).digest('hex');
-}
-export const denverDay=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Denver',dateStyle:'short'}).format(new Date());
-export async function currentStamp(){
-  const rows=[];
-  for(const id of Object.values(sources)) rows.push(...await publishedRows(id));
-  return stamp(rows,denverDay());
-}
-export async function loadContent(dir) {
-  const loadedRows=[];
-  const day=denverDay();
+export async function loadContent(dir, onlyPage) {
   const out={};
   for(const [kind,id] of Object.entries(sources)){
-    const rows=await publishedRows(id);
-    loadedRows.push(...rows);
+    const rows=onlyPage ? (onlyPage.parent?.data_source_id===id ? [onlyPage] : []) : await all('data_sources/'+id+'/query',{filter:{property:'Status',status:{equals:'Published'}}});
     const seen=new Set();
     out[kind]=[];
     for(const row of rows){
@@ -120,6 +106,6 @@ export async function loadContent(dir) {
     }
   }
   await mkdir(dir,{recursive:true});
-  await writeFile(dir+'/content-version.txt',stamp(loadedRows,day));
+
   return out;
 }
