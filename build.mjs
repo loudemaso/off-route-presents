@@ -36,8 +36,9 @@ function layout(path, title, content) {
   <title>${title === 'Home' ? 'Off Route Presents' : title + ' | Off Route Presents'}</title><link rel="preload" href="/Resources/Type/shrikhand.ttf" as="font" type="font/ttf" crossorigin><link rel="stylesheet" href="/styles.css?v=${cssVersion}"></head>
   <body><a class="skip" href="#main">Skip to content</a><header class="masthead"><div class="wrap bar">
     <a class="brand sleeve" href="/" aria-label="Off Route Presents home"><span class="vinyl" aria-hidden="true"></span><span class="sleeve-face">${logo}</span></a>
-    <div class="header-links"><nav class="ticket-nav" aria-label="Main">${nav(path)}</nav>${socialNav}</div>
-  </div></header>
+    <button class="menu-toggle" type="button" aria-label="Navigation menu" aria-expanded="false" aria-controls="header-links"><span aria-hidden="true"></span></button>
+    <div class="header-links" id="header-links"><nav class="ticket-nav" aria-label="Main">${nav(path)}</nav>${socialNav}</div>
+  </div></header><script src="/menu.js" defer></script>
   <main id="main">${content}</main><footer><div class="wrap foot"><a class="brand" href="/">${logo}</a><p>Independent electronic music<br>Colorado</p><nav aria-label="Footer">${nav(path)}</nav></div></footer></body></html>`;
 }
 const heading = (label, title, summary) => `<section class="intro"><div class="wrap">${kicker(label)}<h1>${title}</h1><p>${summary}</p></div>${routeLines}</section>`;
@@ -103,3 +104,4 @@ for (const [path,[title,content]] of Object.entries(pages)) {
 }
 await cp('Resources','dist/Resources',{recursive:true});
 await copyFile('styles.css','dist/styles.css');
+await copyFile('menu.js','dist/menu.js');
