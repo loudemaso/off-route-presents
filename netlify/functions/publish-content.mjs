@@ -1,4 +1,3 @@
-import { finalizeMigration } from "../../finalize-migration.mjs";
 import {
   ContentValidationError,
   recordValidationFailure,
@@ -44,7 +43,6 @@ export function createPublisher({
         headers: privateHeaders,
       });
     const store = await openStore(context);
-    await finalizeMigration(store);
     try {
       const published =
         !page.archived &&
