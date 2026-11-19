@@ -10,12 +10,10 @@ const cssVersion = createHash('sha256').update(await readFile('styles.css')).dig
 const graffiti = '/Resources/Brand/off-route-white-wordmark.png';
 const photo = name => '/Resources/Placeholders/' + name + '.webp';
 const stage = photo('forest-dance-floor');
-const booth = photo('inside-the-booth');
 
 const email = 'brie@offroutepresents.com';
 const navigation = ['Events', 'Artists', 'Posts', 'Contact'];
 const pageURL = name => '/' + name.toLowerCase() + '/';
-const story = '/posts/behind-the-booth/';
 const logo = '<img class="logo" src="' + graffiti + '" alt="Off Route Presents">';
 const button = (label, href) => `<a class="button" href="${href}">${label}</a>`;
 const kicker = label => `<p class="kicker">${label}</p>`;
