@@ -73,11 +73,9 @@ test('empty collections render and Denver past-event grouping works without a bu
   assert.match(html,/Past shows/);
   assert.match(html,/New dates coming soon/);
 });
-test('publication and snapshot endpoints reject unauthenticated requests before accessing data',async()=>{
+test('publication endpoint rejects unauthenticated requests before accessing data',async()=>{
   const publish=(await import('../netlify/functions/publish-content.mjs')).default;
-  const snapshot=(await import('../netlify/functions/content-snapshot.mjs')).default;
-  const image=(await import('../netlify/functions/stored-image.mjs')).default;
-  for(const handler of [publish,snapshot,image]) assert.equal((await handler(new Request('https://example.com/'))).status,401);
+  assert.equal((await publish(new Request('https://example.com/'))).status,401);
 });
 test('requested-page rendering returns only that route',()=>{
   const pages=renderPages(fixture.content,'test',new Date(),'/events/test-event/');

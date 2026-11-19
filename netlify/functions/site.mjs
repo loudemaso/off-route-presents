@@ -1,12 +1,10 @@
 import { seed, mergeRecords, contentStore, readRecords } from '../../content-store.mjs';
-import { migratePublisher } from '../../migrate-publisher.mjs';
 import { renderPages } from '../../render.mjs';
 export default async function site(request, context) {
   const initial = await seed();
   let content = initial.content;
   try {
     const store = contentStore(context);
-    await migratePublisher(store, context);
     content = mergeRecords(content, await readRecords(store));
   } catch (error) {
     console.error(error.message);
