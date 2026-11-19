@@ -1,3 +1,4 @@
+import { ContentValidationError, recordValidationFailure } from '../../validation.mjs';
 import { authenticated, privateHeaders } from '../../auth.mjs';
 import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -28,7 +29,7 @@ export default async function publishContent(request, context) {
       item.body = item.body.replaceAll('src="/media/', 'src="/content-images/');
       const current = await readContent(store, initial.content);
       if (current[kind].some(other => other.id !== page.id && other.slug === item.slug)) {
-        return new Response('Slug already published', { status: 409 });
+        throw new ContentValidationError('Slug already published: '+item.slug);
       }
       current[kind] = current[kind].filter(other => other.id !== page.id).concat(item);
       renderPages(current, initial.cssVersion);
@@ -37,7 +38,11 @@ export default async function publishContent(request, context) {
       }
     }
     await saveRecord(store, { kind, id: page.id, revision: page.last_edited_time, item });
+    await store.delete('publishing-errors/'+page.id);
     return Response.json({ published: Boolean(item), slug: item?.slug, page_id: page.id }, {headers:privateHeaders});
+  } catch(error) {
+    if(error instanceof ContentValidationError) return recordValidationFailure(store,page,kind,error);
+    throw error;
   } finally { await rm(dir, { recursive: true, force: true }); }
 }
 export const config = { path: '/publish', method: 'POST' };

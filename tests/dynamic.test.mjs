@@ -83,3 +83,20 @@ test('requested-page rendering returns only that route',()=>{
   const pages=renderPages(fixture.content,'test',new Date(),'/events/test-event/');
   assert.deepEqual(Object.keys(pages),['/events/test-event/']);
 });
+test('incomplete content reports every required field',async()=>{
+  const {requiredFields}=await import('../validation.mjs');
+  const page={properties:{Name:{title:[{plain_text:'Test Event'}]},Slug:{rich_text:[{plain_text:'test-event'}]}}};
+  assert.deepEqual(requiredFields(page,'events'),['Cover Image is required','Show Starts is required and must be a valid date']);
+  assert.equal(requiredFields(page,'posts')[1],'Publish Date is required and must be a valid date');
+});
+test('invalid record is acknowledged without replacing the last published content',async()=>{
+  const {ContentValidationError,recordValidationFailure}=await import('../validation.mjs');
+  const store=new MemoryStore();
+  const old={kind:'events',id:'a',revision:'001',item:{id:'a',name:'Keep this'}};
+  await saveRecord(store,old);
+  const response=await recordValidationFailure(store,{id:'a'},'events',new ContentValidationError('Cover Image is required'));
+  assert.equal(response.status,200);
+  assert.equal((await response.json()).published,false);
+  assert.deepEqual(await store.get('records/a'),old);
+  assert.equal((await store.get('publishing-errors/a')).error,'Cover Image is required');
+});

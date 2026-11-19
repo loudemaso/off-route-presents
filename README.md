@@ -18,9 +18,11 @@ Each Off Route Artists, Events, and Posts table has its own Notion automation: *
 3. To update a live record, set Draft, edit, and set Published again. Draft/Archived removes it from the website; use one of those before moving a page to Trash. Changes to other properties alone do not publish. There is no scheduled deletion scan.
 4. Renaming Slug removes the old route and creates a new route; there is no automatic redirect. Keep live slugs stable.
 
-Notion webhooks are asynchronous. If an action fails, Notion may pause the automation: correct the invalid/missing fields, check function logs and Notion automation status, then retry. Until a successful update, the last stored version remains. Missing cover images, unsupported blocks, and invalid/duplicate slugs are rejected. Page body supports paragraphs, headings, lists, quotes, dividers, and images.
+Check the **Website check** formula for missing required fields before publishing. This is a readiness check, not delivery confirmation. Doors does not replace Show Starts.
 
-Images are copied to persistent storage when published so expiring Notion file links are not embedded in the website. The website proxies these images through its own access protection. Seed content is bundled on code deployments. Per-record overrides and unpublish tombstones persist across deployments. Code deployments refresh seed content from currently Published Notion records; avoid deploying unfinished edits to Published records.
+Notion webhooks are asynchronous. Incomplete or invalid content is acknowledged with HTTP 200 and `published: false`, logged as `publication_rejected`, and saved under `publishing-errors/<page-id>` in Blobs. It does not replace the last valid snapshot or pause other records. Fix the indicated fields and change Status again. Infrastructure failures still return errors so Notion can retry; if Notion pauses the automation, resolve the outage and resume it manually. Missing cover images, unsupported blocks, and invalid/duplicate slugs are rejected. Page body supports paragraphs, headings, lists, quotes, dividers, and images.
+
+Images are copied to persistent storage when published so expiring Notion file links are not embedded in the website. The website proxies these images through its own access protection. Seed content is bundled on code deployments. Per-record overrides and unpublish tombstones persist across deployments. Code deployments refresh seed content from valid Published Notion records and log skipped invalid records; avoid deploying unfinished edits to Published records.
 
 ## Environment
 
