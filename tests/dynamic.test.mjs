@@ -241,3 +241,36 @@ test("publisher refuses unauthorized and unrelated pages before storage access",
     401,
   );
 });
+
+test("related events stay chronological and posts newest first regardless of storage order", () => {
+  const content = structuredClone(fixture.content);
+  const event = content.events[0];
+  content.events = [
+    {
+      ...event,
+      id: "later",
+      slug: "later-event",
+      name: "LATER EVENT",
+      start: "2027-02-06",
+    },
+    { ...event, name: "EARLIER EVENT", start: "2026-12-05" },
+  ];
+  const post = content.posts[0];
+  content.posts = [
+    { ...post, name: "OLDER POST", date: "2026-10-01" },
+    {
+      ...post,
+      id: "newer",
+      slug: "newer-post",
+      name: "NEWER POST",
+      date: "2026-11-01",
+    },
+  ];
+  const original = structuredClone(content);
+  const html = page("/artists/test-artist/", content);
+  assert.ok(html.includes("EARLIER EVENT") && html.includes("LATER EVENT"));
+  assert.ok(html.indexOf("EARLIER EVENT") < html.indexOf("LATER EVENT"));
+  assert.ok(html.includes("NEWER POST") && html.includes("OLDER POST"));
+  assert.ok(html.indexOf("NEWER POST") < html.indexOf("OLDER POST"));
+  assert.deepEqual(content, original);
+});

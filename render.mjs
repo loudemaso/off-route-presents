@@ -302,6 +302,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
           "Field notes",
           posts
             .filter((p) => p.events.includes(show.id))
+            .sort(postOrder)
             .map(postCard)
             .join(""),
         ),
@@ -328,6 +329,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
           "On the bill",
           events
             .filter((e) => e.lineup.includes(a.id))
+            .sort(eventOrder)
             .map(showCard)
             .join(""),
         ) +
@@ -335,6 +337,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
           "Field notes",
           posts
             .filter((p) => p.artists.includes(a.id))
+            .sort(postOrder)
             .map(postCard)
             .join(""),
         ),
@@ -345,9 +348,11 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
     const links = [
       ...events
         .filter((e) => p.events.includes(e.id))
+        .sort(eventOrder)
         .map((e) => linkItem("events", e)),
       ...artists
         .filter((a) => p.artists.includes(a.id))
+        .sort((a, b) => a.name.localeCompare(b.name))
         .map((a) => linkItem("artists", a)),
     ];
     [title, body] = [
