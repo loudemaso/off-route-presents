@@ -105,7 +105,7 @@ export async function loadContent(dir, onlyPage, options = {}) {
       const slug=plain(p.Slug?.rich_text), name=escape(plain(p.Name?.title));
       try {
         if(seen.has(slug)) throw new ContentValidationError('Duplicate slug: '+kind+'/'+slug);
-        const item={id:row.id,slug,name,summary:get('Summary'),alt:get('Image Alt'),sample:p['Sample Content']?.checkbox,body:await body(row.id,dir),image:await media(p['Cover Image']?.files?.[0]??row.cover,dir)};
+        const item={id:row.id,revision:row.last_edited_time,slug,name,summary:get('Summary'),alt:get('Image Alt'),sample:p['Sample Content']?.checkbox,body:await body(row.id,dir),image:await media(p['Cover Image']?.files?.[0]??row.cover,dir)};
         if(kind==='artists') Object.assign(item,{genre:(p.Genres?.multi_select??[]).map(g=>escape(g.name)).join(' / '),home:get('Home Base'),links:['Instagram','SoundCloud','Website'].map(k=>[k,safeLink(p[k]?.url)]).filter(([,url])=>url)});
         if(kind==='events') Object.assign(item,{start:date('Show Starts'),doors:date('Doors'),venue:get('Venue'),area:get('Neighborhood'),city:get('City'),state:get('State'),age:get('Age Policy'),price:get('Price Display'),ticket:safeLink(p['Ticket URL']?.url),ticketStatus:escape(p['Ticket Status']?.select?.name),featured:p['Feature on Home']?.checkbox,lineup:await rel('Lineup')});
         if(kind==='posts') Object.assign(item,{date:date('Publish Date'),category:escape(p.Category?.select?.name),byline:get('Byline'),events:await rel('Related Events'),artists:await rel('Related Artists')});

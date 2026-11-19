@@ -6,3 +6,6 @@
   directory = ".runtime/functions"
   node_bundler = "esbuild"
   included_files = ["seed.json", "Resources/Placeholders/**"]
+
+[functions."publish-content"]
+  included_files = ["seed.json", "Resources/Placeholders/**", "dist/media/**"]

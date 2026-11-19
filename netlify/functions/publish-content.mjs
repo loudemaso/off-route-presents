@@ -6,6 +6,8 @@ import { join } from 'node:path';
 import { api, sources, loadContent } from '../../notion.mjs';
 import { contentStore, readContent, saveRecord, seed } from '../../content-store.mjs';
 import { renderPages } from '../../render.mjs';
+import { migrateContent } from '../../migrate-content.mjs';
+import { publishRecord } from '../../published-content.mjs';
 
 export default async function publishContent(request, context) {
   if (!authenticated(request)) return new Response('Unauthorized', {status:401, headers:privateHeaders});
@@ -19,6 +21,7 @@ export default async function publishContent(request, context) {
   if (!kind) return new Response('Page is outside Off Route tables', { status: 403 });
   const store = contentStore(context);
   const initial = await seed();
+  await migrateContent(store, initial.content);
   const dir = await mkdtemp(join(tmpdir(), 'off-route-'));
   try {
     let item = null;
@@ -38,6 +41,7 @@ export default async function publishContent(request, context) {
       }
     }
     await saveRecord(store, { kind, id: page.id, revision: page.last_edited_time, item });
+    await publishRecord(store, { kind, id: page.id, revision: page.last_edited_time, item });
     await store.delete('publishing-errors/'+page.id);
     return Response.json({ published: Boolean(item), slug: item?.slug, page_id: page.id }, {headers:privateHeaders});
   } catch(error) {
