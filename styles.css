@@ -884,3 +884,21 @@ p + .button {
     height: 44px;
   }
 }
+
+/* Missing covers use the content itself, without empty image columns. */
+.story-card.no-cover,
+.event-layout.no-cover,
+.duo.no-cover {
+  grid-template-columns: minmax(0, 1fr);
+}
+.show-tile.no-cover,
+.person.no-cover {
+  align-self: start;
+  padding: 1.5rem;
+  border-top: 3px solid currentColor;
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+.no-cover p:empty,
+.no-cover .facts:empty {
+  display: none;
+}

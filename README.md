@@ -17,12 +17,12 @@ The editor-facing instructions are in the [Publishing Guide](https://www.notion.
 
 Each Artists, Events, and Posts table has a **Status is edited → Send webhook** automation to `https://off-route-presents.netlify.app/publish`, with the `x-publish-secret` header. Include Status in the payload. Do not use a build hook or workspace-wide integration webhook.
 
-1. Create a Draft with Name, a unique lowercase hyphenated Slug, and Cover Image (or a Notion page cover). Events also need Show Starts; posts need Publish Date. Other fields and the page body are optional.
+1. Create a Draft with Name. All other content fields are optional. A blank Slug is generated from Name and saved back to Notion, with a numeric suffix for duplicate names within the same table. Existing slugs stay stable on rename. Blank post Publish Dates are set on first publication using the Denver calendar date and saved to Notion; subsequent publication preserves them, as well as any date you entered yourself. A Notion page cover remains the fallback for Cover Image. With neither image, cards and details use a layout without an image. Events without Show Starts appear after dated upcoming events and display no date or show time.
 2. Check **Website check**, then set Status to Published. The webhook runs asynchronously; check the website after it completes.
 3. To update a record, set Draft, edit, and set Published again. Draft temporarily removes it. Property edits alone do not publish, even when Status is Published.
 4. Set Draft or Archived before moving a record to Trash. There is no scheduled deletion scan.
 
-Changing a Slug changes the URL; the old URL has no redirect. Keep live slugs stable. Website check validates required fields, not delivery or slug uniqueness.
+Changing a Slug changes the URL; the old URL has no redirect. Keep live slugs stable. Website check validates Name and the format of an optional supplied Slug, not delivery or slug uniqueness. The Notion integration needs Update content capability for generated properties. Default values are reserved atomically in the catalog before writing them to Notion, so retries and concurrent equal names are safe; failed writeback leaves public content unchanged. Reservations persist when records are unpublished. Only Status edits trigger publication; generated property writes never change Status.
 
 Supported body blocks: paragraphs, headings, lists, quotes, dividers, and images. Image formats: WebP, JPEG, PNG, GIF, and AVIF. Published images are copied, so the site does not depend on expiring Notion file links.
 

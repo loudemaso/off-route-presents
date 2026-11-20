@@ -5,10 +5,9 @@ export function requiredFields(page, kind) {
     (parts || []).map((x) => x.plain_text ?? x.text?.content ?? "").join("");
   const issues = [];
   if (!text(p.Name?.title).trim()) issues.push("Name is required");
-  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(text(p.Slug?.rich_text)))
+  const slug = text(p.Slug?.rich_text).trim();
+  if (slug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))
     issues.push("Slug must contain lowercase words separated by hyphens");
-  if (!p["Cover Image"]?.files?.[0] && !page.cover)
-    issues.push("Cover Image is required");
   const date =
     kind === "events"
       ? "Show Starts"
@@ -17,9 +16,10 @@ export function requiredFields(page, kind) {
         : null;
   if (
     date &&
-    (!p[date]?.date?.start || !Number.isFinite(Date.parse(p[date].date.start)))
+    p[date]?.date?.start &&
+    !Number.isFinite(Date.parse(p[date].date.start))
   )
-    issues.push(date + " is required and must be a valid date");
+    issues.push(date + " must be a valid date");
   return issues;
 }
 export async function recordValidationFailure(store, page, kind, error) {

@@ -22,6 +22,7 @@ export function imageTag(
   } = {},
 ) {
   const source = item.image;
+  if (!source) return "";
   const dimensions =
     item.imageWidth && item.imageHeight
       ? ` width="${item.imageWidth}" height="${item.imageHeight}"`

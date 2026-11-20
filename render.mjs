@@ -136,16 +136,19 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
     : null;
   if (route.slug && !item) return null;
   const today = dayFormat.format(now);
-  const eventOrder = (a, b) => asDate(a.start) - asDate(b.start);
+  const eventOrder = (a, b) =>
+    (a.start ? 0 : 1) - (b.start ? 0 : 1) ||
+    (a.start && b.start ? asDate(a.start) - asDate(b.start) : 0) ||
+    a.name.localeCompare(b.name);
   const postOrder = (a, b) =>
     asDate(b.date) - asDate(a.date) || a.slug.localeCompare(b.slug);
   const upcoming = () =>
     events
-      .filter((e) => dayFormat.format(asDate(e.start)) >= today)
+      .filter((e) => !e.start || dayFormat.format(asDate(e.start)) >= today)
       .sort(eventOrder);
   const past = () =>
     events
-      .filter((e) => dayFormat.format(asDate(e.start)) < today)
+      .filter((e) => e.start && dayFormat.format(asDate(e.start)) < today)
       .sort(eventOrder)
       .reverse();
   const lineup = (show) =>
@@ -155,7 +158,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
       .map((a) => linkItem("artists", a))
       .join(" · ");
   const featuredPoster = () => {
-    const shows = upcoming();
+    const shows = upcoming().filter((e) => e.image);
     const featured = shows.find((e) => e.featured) ?? shows[0];
     return featured
       ? '<a class="pinned poster" href="' +
@@ -171,11 +174,15 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
   };
   function showCard(show) {
     return (
-      '<article class="show-tile"><a class="flyer-link" href="' +
-      detail("events", show) +
-      '">' +
-      photoTag(show) +
-      '</a><p class="meta">' +
+      `<article class="show-tile${show.image ? "" : " no-cover"}">` +
+      (show.image
+        ? '<a class="flyer-link" href="' +
+          detail("events", show) +
+          '">' +
+          photoTag(show) +
+          "</a>"
+        : "") +
+      '<p class="meta">' +
       badge(show) +
       dateTag(show.start) +
       "</p><h3>" +
@@ -189,11 +196,11 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
   }
   function artistCard(a) {
     return (
-      '<article class="person"><a href="' +
-      detail("artists", a) +
-      '">' +
-      photoTag(a) +
-      '</a><p class="meta">' +
+      `<article class="person${a.image ? "" : " no-cover"}">` +
+      (a.image
+        ? '<a href="' + detail("artists", a) + '">' + photoTag(a) + "</a>"
+        : "") +
+      '<p class="meta">' +
       badge(a) +
       a.genre +
       "</p><h3>" +
@@ -205,11 +212,15 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
   }
   function postCard(p) {
     return (
-      '<article class="story-card"><a class="frame" href="' +
-      detail("posts", p) +
-      '">' +
-      photoTag(p) +
-      "</a><div>" +
+      `<article class="story-card${p.image ? "" : " no-cover"}">` +
+      (p.image
+        ? '<a class="frame" href="' +
+          detail("posts", p) +
+          '">' +
+          photoTag(p) +
+          "</a>"
+        : "") +
+      "<div>" +
       kicker(badge(p) + p.category) +
       dateTag(p.date) +
       "<h3>" +
@@ -261,7 +272,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
       ["Doors", show.doors && timeFormat.format(asDate(show.doors))],
       [
         "Music",
-        show.start.length > 10 &&
+        show.start?.length > 10 &&
           timeFormat.format(asDate(show.start)) + " Mountain Time",
       ],
       ["Age", show.age],
@@ -279,16 +290,19 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
     [title, body] = [
       show.name,
       heading(badge(show) + "Event", show.name, location(show)) +
-        '<section class="paper block"><div class="wrap event-layout"><div class="full-flyer">' +
-        photoTag(show, {
-          eager: true,
-          sizes: "(max-width:700px) 85vw, 600px",
-        }) +
-        "</div><div>" +
+        `<section class="paper block"><div class="wrap event-layout${show.image ? "" : " no-cover"}">` +
+        (show.image
+          ? '<div class="full-flyer">' +
+            photoTag(show, {
+              eager: true,
+              sizes: "(max-width:700px) 85vw, 600px",
+            }) +
+            "</div>"
+          : "") +
+        "<div>" +
         kicker("Show details") +
-        "<h2>" +
-        dateTag(show.start) +
-        '</h2><dl class="facts">' +
+        (show.start ? "<h2>" + dateTag(show.start) + "</h2>" : "") +
+        '<dl class="facts">' +
         facts
           .filter(([, v]) => v)
           .map(([k, v]) => "<dt>" + k + "</dt><dd>" + v + "</dd>")
@@ -317,9 +331,16 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
         a.name,
         [a.genre, a.home].filter(Boolean).join(" · "),
       ) +
-        '<section class="artists"><div class="wrap duo"><div class="portrait">' +
-        photoTag(a, { eager: true, sizes: "(max-width:700px) 89vw, 640px" }) +
-        "</div><div>" +
+        `<section class="artists"><div class="wrap duo${a.image ? "" : " no-cover"}">` +
+        (a.image
+          ? '<div class="portrait">' +
+            photoTag(a, {
+              eager: true,
+              sizes: "(max-width:700px) 89vw, 640px",
+            }) +
+            "</div>"
+          : "") +
+        "<div>" +
         kicker("Biography") +
         a.body +
         "<p>" +

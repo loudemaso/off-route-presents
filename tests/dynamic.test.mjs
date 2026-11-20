@@ -129,17 +129,16 @@ test("responsive images retain eager hero loading and defer below-fold cards", (
   assert.match(html, /\.netlify\/images\?url=/);
 });
 
-test("incomplete content reports every required field", () => {
+test("only Name is required; missing optional fields are accepted", () => {
   const incomplete = {
     properties: {
       Name: { title: [{ plain_text: "Test" }] },
       Slug: { rich_text: [{ plain_text: "test" }] },
     },
   };
-  assert.deepEqual(requiredFields(incomplete, "events"), [
-    "Cover Image is required",
-    "Show Starts is required and must be a valid date",
-  ]);
+  assert.deepEqual(requiredFields(incomplete, "events"), []);
+  incomplete.properties.Name.title = [];
+  assert.deepEqual(requiredFields(incomplete, "events"), ["Name is required"]);
 });
 
 test("actual publisher loads Notion content, persists images, updates, rejects invalid data, and unpublishes", async (t) => {
@@ -211,7 +210,7 @@ test("actual publisher loads Notion content, persists images, updates, rejects i
     "Updated event",
   );
   current.last_edited_time = "2026-11-19T18:02:00.000Z";
-  delete current.properties["Cover Image"];
+  current.properties.Name.title = [];
   response = await publish(req());
   assert.equal(response.status, 200);
   assert.equal((await response.json()).published, false);

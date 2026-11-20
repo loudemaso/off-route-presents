@@ -26,7 +26,13 @@ export async function publishRecord(store, entry) {
     if (current && current.revision > entry.revision) return false;
     if (
       entry.item &&
-      Object.values(snapshot.records).some(
+      [
+        ...Object.values(snapshot.records),
+        ...Object.values(snapshot.defaults || {}).map((d) => ({
+          ...d,
+          item: d,
+        })),
+      ].some(
         (other) =>
           other.id !== entry.id &&
           other.kind === entry.kind &&

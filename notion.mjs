@@ -17,14 +17,15 @@ export const escape = (value) =>
       ],
   );
 const safeLink = (url) => (/^https?:\/\//i.test(url ?? "") ? escape(url) : "");
-const plain = (parts) => (parts ?? []).map((p) => p.plain_text).join("");
-export async function api(path, payload) {
+export const plain = (parts) =>
+  (parts ?? []).map((p) => p.plain_text ?? p.text?.content ?? "").join("");
+export async function api(path, payload, method = payload ? "POST" : "GET") {
   const token = process.env.NOTION_TOKEN;
   if (!token)
     throw Error("NOTION_TOKEN is required by the publishing function.");
   for (let attempt = 0; attempt < 5; attempt++) {
     const res = await fetch("https://api.notion.com/v1/" + path, {
-      method: payload ? "POST" : "GET",
+      method,
       headers: {
         Authorization: "Bearer " + token,
         "Notion-Version": "2025-09-03",
@@ -179,7 +180,7 @@ export async function loadPage(row, store) {
       (r) => r.relation.id,
     );
   };
-  const slug = plain(p.Slug?.rich_text),
+  const slug = plain(p.Slug?.rich_text).trim(),
     name = escape(plain(p.Name?.title));
   const item = {
     id: row.id,
@@ -189,7 +190,9 @@ export async function loadPage(row, store) {
     alt: get("Image Alt"),
     sample: p["Sample Content"]?.checkbox,
     body: await body(row.id, store),
-    ...(await media(p["Cover Image"]?.files?.[0] ?? row.cover, store)),
+    ...((p["Cover Image"]?.files?.[0] ?? row.cover)
+      ? await media(p["Cover Image"]?.files?.[0] ?? row.cover, store)
+      : {}),
   };
   if (kind === "artists")
     Object.assign(item, {
