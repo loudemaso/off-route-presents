@@ -102,6 +102,8 @@ const location = (show) =>
 const linkItem = (kind, item) =>
   '<a href="' + detail(kind, item) + '">' + item.name + "</a>";
 const badge = (item) => (item.sample ? "Example · " : "");
+const postCategory = (post) =>
+  post.category?.toLowerCase() === "field notes" ? "Posts" : post.category;
 const related = (label, html) =>
   html
     ? '<section class="paper block"><div class="wrap"><h2>' +
@@ -221,7 +223,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
           "</a>"
         : "") +
       "<div>" +
-      kicker(badge(p) + p.category) +
+      kicker(badge(p) + postCategory(p)) +
       dateTag(p.date) +
       "<h3>" +
       linkItem("posts", p) +
@@ -378,7 +380,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
       .join(" · ");
     [title, body] = [
       p.name,
-      heading(badge(p) + p.category, p.name, p.summary) +
+      heading(badge(p) + postCategory(p), p.name, p.summary) +
         '<article class="paper block"><div class="wrap article"><p class="meta">' +
         dateTag(p.date) +
         (p.byline ? " · " + p.byline : "") +

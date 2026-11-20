@@ -53,6 +53,11 @@ test("post labels are consistent across listings and related content", () => {
   assert.match(post, /<h2>Related events<\/h2>/);
   assert.match(post, /<h2>Related artists<\/h2>/);
   assert.doesNotMatch(post, /Field notes|On the bill/);
+  const categorized = structuredClone(fixture.content);
+  categorized.posts[0].category = "Field notes";
+  assert.doesNotMatch(page("/", categorized), /Field notes/i);
+  assert.doesNotMatch(page("/posts/", categorized), /Field notes/i);
+  assert.doesNotMatch(page("/posts/test-post/", categorized), /Field notes/i);
 });
 
 test("empty collections and Denver event grouping need no rebuild", () => {
