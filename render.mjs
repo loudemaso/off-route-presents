@@ -59,7 +59,7 @@ const socialNav =
   "</nav>";
 function layout(path, title, content, cssVersion) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex"><meta name="theme-color" content="#10241c"><meta name="description" content="Independent electronic music events and artist management in Colorado. Explore Off Route shows, artists and field notes.">
+  <meta name="robots" content="noindex"><meta name="theme-color" content="#10241c"><meta name="description" content="Independent electronic music events and artist management in Colorado. Explore Off Route shows, artists and posts.">
   <title>${title === "Home" ? "Off Route Presents" : title + " | Off Route Presents"}</title><link rel="preload" href="/Resources/Type/shrikhand.ttf" as="font" type="font/ttf" crossorigin><link rel="stylesheet" href="/styles.css?v=${cssVersion}"></head>
   <body><a class="skip" href="#main">Skip to content</a><header class="masthead"><div class="wrap bar">
     <a class="brand sleeve" href="/" aria-label="Off Route Presents home"><span class="vinyl" aria-hidden="true"></span><span class="sleeve-face">${logo(true)}</span></a>
@@ -244,7 +244,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
     .slice(0, 3)
     .map(artistCard)
     .join("")}</div></div></section>
-  <section class="paper block"><div class="wrap"><div class="section-head"><h2>Field notes<span>.</span></h2><a class="rule-link" href="/posts/">All posts</a></div>${posts.length ? postCard(posts.toSorted(postOrder)[0]) : ""}</div></section>
+  <section class="paper block"><div class="wrap"><div class="section-head"><h2>Posts<span>.</span></h2><a class="rule-link" href="/posts/">All posts</a></div>${posts.length ? postCard(posts.toSorted(postOrder)[0]) : ""}</div></section>
   <section class="contact-band"><div class="wrap section-head"><h2>Get in touch.</h2>${button("Contact Off Route", "/contact/")}</div></section>`,
     ],
     "/events/": () => [
@@ -260,7 +260,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
     ],
     "/posts/": () => [
       "Posts",
-      `${heading("Off Route journal", "Field notes.", "Announcements, studio notes and stories from Off Route.")}<section class="paper block"><div class="wrap stories">${posts.toSorted(postOrder).map(postCard).join("")}</div></section>`,
+      `${heading("Off Route journal", "Posts.", "Announcements, studio notes and stories from Off Route.")}<section class="paper block"><div class="wrap stories">${posts.toSorted(postOrder).map(postCard).join("")}</div></section>`,
     ],
   };
   if (pages[path]) return layout(path, ...pages[path](), cssVersion);
@@ -313,7 +313,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
         tickets +
         "</p></div></div></section>" +
         related(
-          "Field notes",
+          "Related posts",
           posts
             .filter((p) => p.events.includes(show.id))
             .sort(postOrder)
@@ -347,7 +347,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
         a.links.map(([k, url]) => button(k, url)).join(" ") +
         "</p></div></div></section>" +
         related(
-          "On the bill",
+          "Related events",
           events
             .filter((e) => e.lineup.includes(a.id))
             .sort(eventOrder)
@@ -355,7 +355,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
             .join(""),
         ) +
         related(
-          "Field notes",
+          "Related posts",
           posts
             .filter((p) => p.artists.includes(a.id))
             .sort(postOrder)
@@ -366,16 +366,16 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
   }
   if (route.kind === "posts") {
     const p = item;
-    const links = [
-      ...events
-        .filter((e) => p.events.includes(e.id))
-        .sort(eventOrder)
-        .map((e) => linkItem("events", e)),
-      ...artists
-        .filter((a) => p.artists.includes(a.id))
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .map((a) => linkItem("artists", a)),
-    ];
+    const relatedEvents = events
+      .filter((e) => p.events.includes(e.id))
+      .sort(eventOrder)
+      .map((e) => linkItem("events", e))
+      .join(" · ");
+    const relatedArtists = artists
+      .filter((a) => p.artists.includes(a.id))
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((a) => linkItem("artists", a))
+      .join(" · ");
     [title, body] = [
       p.name,
       heading(badge(p) + p.category, p.name, p.summary) +
@@ -385,9 +385,9 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
         "</p>" +
         photoTag(p, { eager: true, sizes: "(max-width:740px) 89vw, 740px" }) +
         p.body +
-        "<p>" +
-        links.join(" · ") +
-        '</p><a class="rule-link" href="/posts/">Back to posts</a></div></article>',
+        '<a class="rule-link" href="/posts/">Back to posts</a></div></article>' +
+        related("Related events", relatedEvents) +
+        related("Related artists", relatedArtists),
     ];
   }
 

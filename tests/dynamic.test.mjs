@@ -42,6 +42,19 @@ test("detail, listing, and related pages reflect the same content", () => {
   assert.doesNotMatch(page("/artists/test-artist/", content), /UPDATED EVENT/);
 });
 
+test("post labels are consistent across listings and related content", () => {
+  assert.match(page("/"), /<h2>Posts<span>\.<\/span><\/h2>/);
+  assert.match(page("/posts/"), /<h1>Posts\.<\/h1>/);
+  assert.match(page("/events/test-event/"), /<h2>Related posts<\/h2>/);
+  const artist = page("/artists/test-artist/");
+  assert.match(artist, /<h2>Related events<\/h2>/);
+  assert.match(artist, /<h2>Related posts<\/h2>/);
+  const post = page("/posts/test-post/");
+  assert.match(post, /<h2>Related events<\/h2>/);
+  assert.match(post, /<h2>Related artists<\/h2>/);
+  assert.doesNotMatch(post, /Field notes|On the bill/);
+});
+
 test("empty collections and Denver event grouping need no rebuild", () => {
   const empty = { artists: [], events: [], posts: [] };
   assert.match(page("/", empty), /New dates coming soon/);
