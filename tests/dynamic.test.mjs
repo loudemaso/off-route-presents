@@ -43,7 +43,7 @@ test("detail, listing, and related pages reflect the same content", () => {
 });
 
 test("post labels are consistent across listings and related content", () => {
-  assert.match(page("/"), /<h2>Posts<span>\.<\/span><\/h2>/);
+  assert.match(page("/"), /<h2>Recent posts<span>\.<\/span><\/h2>/);
   assert.match(page("/posts/"), /<h1>Posts\.<\/h1>/);
   assert.match(page("/events/test-event/"), /<h2>Related posts<\/h2>/);
   const artist = page("/artists/test-artist/");

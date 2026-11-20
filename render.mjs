@@ -244,7 +244,7 @@ export function renderPage(path, content, cssVersion, now = new Date()) {
     .slice(0, 3)
     .map(artistCard)
     .join("")}</div></div></section>
-  <section class="paper block"><div class="wrap"><div class="section-head"><h2>Posts<span>.</span></h2><a class="rule-link" href="/posts/">All posts</a></div>${posts.length ? postCard(posts.toSorted(postOrder)[0]) : ""}</div></section>
+  <section class="paper block"><div class="wrap"><div class="section-head"><h2>Recent posts<span>.</span></h2><a class="rule-link" href="/posts/">All posts</a></div>${posts.length ? postCard(posts.toSorted(postOrder)[0]) : ""}</div></section>
   <section class="contact-band"><div class="wrap section-head"><h2>Get in touch.</h2>${button("Contact Off Route", "/contact/")}</div></section>`,
     ],
     "/events/": () => [
